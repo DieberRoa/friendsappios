@@ -3,17 +3,18 @@ import SwiftData
 
 struct ContentView: View {
     
-    @State private var friends : [Friend] = [
-        Friend(name:"Elton John", birthday:  .now),
-        Friend(name:"Elthis Skrombopulus", birthday: Date(timeIntervalSince1970: 0))
-    ]
+    @Query private var friends : [Friend]
+    @Environment(\.modelContext) private var context
     
     @State private var newName = ""
     @State private var newDate = Date.now
     
     var body: some View {
-        List(friends , id: \.name) { friend in
+        List(friends) { friend in
             HStack {
+                if friend.isBirthdayToday {
+                    Image(systemName: "birthday.cake")
+                }
                 Text(friend.name)
                 Spacer()
                 Text(friend.birthday, format: .dateTime.month(.wide).day().year())
@@ -31,7 +32,7 @@ struct ContentView: View {
                 .padding()
                 Button("Save") {
                     let newFriend = Friend(name: newName, birthday: newDate)
-                    friends.append(newFriend)
+                    context.insert(newFriend)
                     
                     newName = ""
                     newDate = .now
